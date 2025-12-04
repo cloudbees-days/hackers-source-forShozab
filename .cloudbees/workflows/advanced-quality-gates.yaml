@@ -18,7 +18,7 @@ jobs:
     runs-on: cloudbees-runner
     steps:
       - name: Multi-Criteria Quality Gate (custom)
-        uses: ./.actions/quality-gate
+        uses: ./actions/quality-gate
         with:
           environment: ${{ inputs.environment }}
           critical_test_failures: 0      # wire real values from previous steps later
