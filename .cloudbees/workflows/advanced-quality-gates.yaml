@@ -15,7 +15,6 @@ on:
 
 jobs:
   quality-assessment:
-    runs-on: cloudbees-runner
     steps:
       - name: Multi-Criteria Quality Gate (custom)
         uses: ./actions/quality-gate
