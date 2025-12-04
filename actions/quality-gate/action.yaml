@@ -1,0 +1,46 @@
+name: "Quality Gate (Custom)"
+description: "Evaluate multi-criteria quality gates per environment"
+author: "Your team"
+version: 1
+
+inputs:
+  rules:
+    description: "YAML rules for quality gate evaluation"
+    required: true
+  environment:
+    description: "Target environment (qa, staging, production, etc.)"
+    required: true
+  critical_test_failures:
+    description: "Number of critical test failures"
+    required: true
+  major_test_failures:
+    description: "Number of major test failures"
+    required: true
+  minor_test_failures:
+    description: "Number of minor test failures"
+    required: true
+  code_coverage:
+    description: "Code coverage percentage"
+    required: true
+
+runs:
+  using: "docker"
+  image: "docker://alpine:3.19"
+  entrypoint: /bin/sh
+  args:
+    - -c
+    - |
+      echo "=== Custom Quality Gate ==="
+      echo "Environment:              $INPUT_ENVIRONMENT"
+      echo "Critical test failures:   $INPUT_CRITICAL_TEST_FAILURES"
+      echo "Major test failures:      $INPUT_MAJOR_TEST_FAILURES"
+      echo "Minor test failures:      $INPUT_MINOR_TEST_FAILURES"
+      echo "Code coverage:            $INPUT_CODE_COVERAGE"
+      echo
+      echo "Rules:"
+      echo "---------------------------"
+      echo "$INPUT_RULES"
+      echo "---------------------------"
+      echo
+      echo "[Dummy] Not enforcing rules yet; always passing."
+      exit 0
