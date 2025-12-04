@@ -1,7 +1,8 @@
+apiVersion: automation.cloudbees.io/v1alpha1
+kind: action
 name: "Quality Gate (Custom)"
 description: "Evaluate multi-criteria quality gates per environment"
-author: "Your team"
-apiVersion: 1
+author: "Shozab Naqvi"
 
 inputs:
   rules:
