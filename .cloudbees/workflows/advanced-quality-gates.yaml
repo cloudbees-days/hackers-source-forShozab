@@ -1,18 +1,16 @@
 apiVersion: automation.cloudbees.io/v1alpha1
 kind: workflow
 name: advanced-quality-gates
-
 on:
   workflow_dispatch:
     inputs:
       environment:
         type: choice
-        description: "Target environment"
+        description: Target environment
         options:
           - qa
           - staging
           - production
-
 jobs:
   quality-assessment:
     steps:
@@ -20,7 +18,7 @@ jobs:
         uses: ./actions/quality-gate
         with:
           environment: ${{ inputs.environment }}
-          critical_test_failures: 0      # wire real values from previous steps later
+          critical_test_failures: 0
           major_test_failures: 1
           minor_test_failures: 3
           code_coverage: 85
@@ -72,3 +70,33 @@ jobs:
                 - metric: code_coverage
                   operator: greater_than_or_equal
                   threshold: 70
+    needs:
+      - run-test
+  deploy-to-QA:
+    steps:
+      - name: Deploy
+        uses: cloudbees-io/publish-evidence-item@v1
+        run: ""
+        kind: deploy
+        env: {}
+        with:
+          content: Deployed to QA
+        shell: ""
+  run-test:
+    steps:
+      - name: Selenium
+        uses: cloudbees-io/publish-evidence-item@v1
+        run: ""
+        kind: test
+        env: {}
+        with:
+          content: Running Tests
+        shell: ""
+    needs: deploy-to-QA
+  deploy-to-Staging:
+    steps:
+      - name: Deploy to Staging
+        with:
+          content: Deploy to Staging
+        uses: cloudbees-io/publish-evidence-item@v1
+    needs: quality-assessment
