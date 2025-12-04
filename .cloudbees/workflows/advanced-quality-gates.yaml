@@ -1,0 +1,75 @@
+apiVersion: automation.cloudbees.io/v1alpha1
+kind: workflow
+name: advanced-quality-gates
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: "Target environment"
+        options:
+          - qa
+          - staging
+          - production
+
+jobs:
+  quality-assessment:
+    runs-on: cloudbees-runner
+    steps:
+      - name: Multi-Criteria Quality Gate (custom)
+        uses: ./.cloudbees-days/actions/quality-gate
+        with:
+          environment: ${{ inputs.environment }}
+          critical_test_failures: 0      # wire real values from previous steps later
+          major_test_failures: 1
+          minor_test_failures: 3
+          code_coverage: 85
+          rules: |
+            # Production Rules (Strictest)
+            - environment: production
+              conditions:
+                - metric: critical_test_failures
+                  operator: equals
+                  threshold: 0
+                - metric: major_test_failures
+                  operator: equals
+                  threshold: 0
+                - metric: minor_test_failures
+                  operator: less_than_or_equal
+                  threshold: 2
+                - metric: code_coverage
+                  operator: greater_than_or_equal
+                  threshold: 90
+
+            # Staging Rules (Moderate)
+            - environment: staging
+              conditions:
+                - metric: critical_test_failures
+                  operator: equals
+                  threshold: 0
+                - metric: major_test_failures
+                  operator: less_than_or_equal
+                  threshold: 1
+                - metric: minor_test_failures
+                  operator: less_than_or_equal
+                  threshold: 5
+                - metric: code_coverage
+                  operator: greater_than_or_equal
+                  threshold: 80
+
+            # QA Rules (Lenient)
+            - environment: qa
+              conditions:
+                - metric: critical_test_failures
+                  operator: less_than_or_equal
+                  threshold: 1
+                - metric: major_test_failures
+                  operator: less_than_or_equal
+                  threshold: 3
+                - metric: minor_test_failures
+                  operator: less_than_or_equal
+                  threshold: 10
+                - metric: code_coverage
+                  operator: greater_than_or_equal
+                  threshold: 70
