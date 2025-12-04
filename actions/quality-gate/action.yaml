@@ -25,23 +25,24 @@ inputs:
     required: true
 
 runs:
-  using: "docker"
-  image: "docker://alpine:3.19"
-  entrypoint: /bin/sh
-  args:
-    - -c
-    - |
-      echo "=== Custom Quality Gate ==="
-      echo "Environment:              $INPUT_ENVIRONMENT"
-      echo "Critical test failures:   $INPUT_CRITICAL_TEST_FAILURES"
-      echo "Major test failures:      $INPUT_MAJOR_TEST_FAILURES"
-      echo "Minor test failures:      $INPUT_MINOR_TEST_FAILURES"
-      echo "Code coverage:            $INPUT_CODE_COVERAGE"
-      echo
-      echo "Rules:"
-      echo "---------------------------"
-      echo "$INPUT_RULES"
-      echo "---------------------------"
-      echo
-      echo "[Dummy] Not enforcing rules yet; always passing."
-      exit 0
+  using: composite
+  steps:
+    - id: quality-gate-check
+      name: Quality Gate Check
+      uses: docker://cloudbeesdemo/jira-actions:v2
+      shell: sh
+      run: |
+        echo "=== Custom Quality Gate ==="
+        echo "Environment:              ${{ inputs.environment }}"
+        echo "Critical test failures:   ${{ inputs.critical_test_failures }}"
+        echo "Major test failures:      ${{ inputs.major_test_failures }}"
+        echo "Minor test failures:      ${{ inputs.minor_test_failures }}"
+        echo "Code coverage:            ${{ inputs.code_coverage }}"
+        echo
+        echo "Rules:"
+        echo "---------------------------"
+        echo " ${{ inputs.rules }}"
+        echo "---------------------------"
+        echo
+        echo "Not enforcing rules yet; always passing."
+
